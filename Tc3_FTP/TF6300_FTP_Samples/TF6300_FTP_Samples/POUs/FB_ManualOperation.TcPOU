@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="FB_ManualOperation" Id="{3d7a271d-4003-42c1-bb5e-c278bb7b7698}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ManualOperation
+VAR
+	fbConnection 	: FB_FtpConnection(1) 	:= (sNetID := '', tTimeout := T#50S);
+	fbExplorer		: FB_FtpExplorer 		:= (sNetID := '', tTimeout := T#50S);
+	fbTransfer 		: FB_FtpTransfer 		:= (sNetID := '', tTimeout := T#50S);
+
+	stConfigProfile: ST_FtpConfigProfile := (
+		stConnection := (
+			eAuth := E_FtpConnectionAuth.sftp_user_pwd, 
+			nPort := 23, 
+			sHostname := '127.0.0.1', 
+			sUsername := 'My_SFTP_User', 
+			sPassword := 'SomeSecurePassword##1', 
+			sFileName := 'QuickStart')
+	);
+	
+    sLocalDirectory			: STRING(255) := 'C:\temp\';
+	sRemoteDirectory		: STRING(255) := '\';
+	sNewRemoteDirectory		: STRING(255) := '\';
+	sLocalFilePath			: STRING(255) := 'C:\temp\file.txt';
+	sRemoteFilePath			: STRING(255) := '\file.txt';
+	sNewName				: STRING(255) := 'NewElementName';
+	
+	stTransferState			: ST_FtpTransferState;
+	stTransferStateVerbose	: ST_FtpTransferStateVerbose;
+	
+	stTransfersActive		: ST_FtpTransfersActive;
+	aTransfersActiveList	: A_FtpTransfersActiveList;
+	
+	bFileExists				: BOOL;
+	bDirExists				: BOOL;
+		
+	nHandle					: UDINT;
+	eDoTask					: E_DoTask := E_DoTask.NONE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE eDoTask OF
+// ====================================================================================================================================	
+//	Actions that make use of FB_FTP_Connection alias fbCONNECTION
+// ==================================================================================================================================== 		
+		
+	E_DoTask.CONN_Connect:
+		IF fbConnection.Connect(stConfigProfile.stConnection.sFileName) THEN
+			eDoTask := E_DoTask.NONE;	
+		END_IF
+	
+	E_DoTask.CONN_Disconnect:
+		IF fbConnection.Disconnect() THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.CONN_AddProfile:
+		IF fbConnection.AddProfile(stConfigProfile) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+	
+// ====================================================================================================================================	
+//	Actions that make use of FB_FTP_Explorer alias fbEXPLORER
+// ==================================================================================================================================== 
+
+// ============================================================ Directories =========================================================== 
+		
+	E_DoTask.EXPLORER_DirCreate:
+		IF fbExplorer.DirCreate(fbConnection, sRemoteDirectory) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+	
+	E_DoTask.EXPLORER_DirExists:
+		IF fbExplorer.DirExists(fbConnection, sRemoteDirectory, bExists => bDirExists) THEN		
+	    	eDoTask := E_DoTask.NONE;	
+		END_IF
+	
+	E_DoTask.EXPLORER_DirRemove:
+		IF fbExplorer.DirRemove(fbConnection, sRemoteDirectory) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+	
+	E_DoTask.EXPLORER_DirRename:
+		IF fbExplorer.DirRename(fbConnection, sRemoteDirectory, sNewName) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.EXPLORER_DirMove:
+		IF fbExplorer.DirMove(fbConnection, sRemoteDirectory, sNewRemoteDirectory) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+// =============================================================== Files ============================================================== 
+		
+	E_DoTask.EXPLORER_FileExists:
+		IF fbExplorer.FileExists(fbConnection, sRemoteFilePath, bExists => bFileExists) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.EXPLORER_FileRemove:
+		IF fbExplorer.FileRemove(fbConnection, sRemoteFilePath) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+	
+	E_DoTask.EXPLORER_FileRename:
+		IF fbExplorer.FileRename(fbConnection, sRemoteFilePath, sNewName) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.EXPLORER_FileMove:
+		IF fbExplorer.FileMove(fbConnection, sRemoteFilePath, sNewRemoteDirectory) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+// ====================================================================================================================================	
+//	Actions that make use of FB_FTP_Transfer alias fbTRANSFER
+// ==================================================================================================================================== 
+		
+	E_DoTask.TRANSFER_Download:
+		IF fbTransfer.Download(fbConnection, sRemoteFilePath, sLocalDirectory, nTransferHandle => nHandle) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.TRANSFER_Upload:
+		IF fbTransfer.Upload(fbConnection, sLocalFilePath, sRemoteDirectory, nTransferHandle => nHandle) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.TRANSFER_GetState:
+		IF fbTransfer.GetState(fbConnection, nHandle, stTransferState => stTransferState) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.TRANSFER_GetStateVerbose:
+		IF fbTransfer.GetStateVerbose(fbConnection, nHandle, stTransferStateVerbose => stTransferStateVerbose) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+	
+	E_DoTask.TRANSFER_Abort:
+		IF fbTransfer.Abort(fbConnection, nHandle) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.TRANSFER_GetActive:
+		IF fbTransfer.GetActive(fbConnection, stTransfers => stTransfersActive) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+		
+	E_DoTask.TRANSFER_GetActiveVerbose:
+		IF fbTransfer.GetActiveVerbose(fbConnection, stTransfers => stTransfersActive, aTransfersList => aTransfersActiveList) THEN
+			eDoTask := E_DoTask.NONE;
+		END_IF
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ManualOperation">
+      <LineId Id="1064" Count="0" />
+      <LineId Id="1088" Count="4" />
+      <LineId Id="1218" Count="1" />
+      <LineId Id="1216" Count="0" />
+      <LineId Id="1096" Count="44" />
+      <LineId Id="1142" Count="17" />
+      <LineId Id="1173" Count="38" />
+      <LineId Id="159" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

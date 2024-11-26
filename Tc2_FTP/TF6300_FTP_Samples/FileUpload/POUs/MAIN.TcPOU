@@ -1,0 +1,31 @@
+﻿<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.19">
+  <POU Name="MAIN" Id="{6871d4ed-0c4a-4cb1-9e1e-cb89a9991bdf}">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	FB_FTPFileUpload1	: FB_FTP_FileUploadEx;
+	startstop			: BOOL;
+	busy				: BOOL;
+	err					: BOOL;
+	errid				: UDINT;
+	progress			: UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FB_FTPFileUpload1(
+	sNetID:= ,
+	sHost:= '172.17.36.148',
+	nPort:= DEFAULT_FTP_PORT,
+	sUsername:= 'TestUser',
+	sPassword:= 'TestPwd123',
+	sSrcFile:= '\Program Files\TestFile1.txt',
+	sDesFile:= '\TestFolder\File1.txt',
+	bExecute:= startstop,
+	tTimeout:= T#15s,
+	bBusy=> busy,
+	bError=> err,
+	nErrId=> errid,
+	nProgress=> progress);]]></ST>
+    </Implementation>
+    <ObjectProperties />
+  </POU>
+</TcPlcObject>

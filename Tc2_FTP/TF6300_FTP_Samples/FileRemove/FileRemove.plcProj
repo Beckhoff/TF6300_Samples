@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8ba0863f-07fc-4671-a770-91f1f6a39f5d}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>FileRemove</Name>
+    <FileVersion>1.0.0.0</FileVersion>
+    <CompilerDefines />
+    <dynamic_memory_size>
+    </dynamic_memory_size>
+    <ProgramVersion>3.1.0.5</ProgramVersion>
+    <LibraryReferences>{7128cf32-f525-417e-b676-78d8589a8715}</LibraryReferences>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <Application>{5cc84c5b-7d6e-4480-8a33-26cff9899f05}</Application>
+    <TypeSystem>{23ddb4ad-7884-40d0-ba08-96dce314e4e1}</TypeSystem>
+    <Implicit_Task_Info>{f3cacada-0141-4537-a00e-7673e5ef3c43}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{b3e6c72d-298d-4197-b5ff-aefdf45f3342}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{e3634dbc-481c-4883-a316-cc6e08ab8b39}</Implicit_Jitter_Distribution>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+      <ObjectGuid>{1dc0f62a-b903-493a-8198-d79ee1f5c136}</ObjectGuid>
+    </Compile>
+    <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+      <ObjectGuid>{e321da4a-e99f-4ca5-9ab9-62e34de91f00}</ObjectGuid>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DUTs" />
+    <Folder Include="GVLs" />
+    <Folder Include="VISUs" />
+    <Folder Include="POUs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FileRemove.tmc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <LibraryReference Include="Tc2_FTP,newest,Beckhoff Automation GmbH">
+      <Namespace>Tc2_FTP</Namespace>
+    </LibraryReference>
+    <LibraryReference Include="Tc2_Standard,newest,Beckhoff Automation GmbH">
+      <Namespace>Tc2_Standard</Namespace>
+    </LibraryReference>
+    <LibraryReference Include="Tc2_System,newest,Beckhoff Automation GmbH">
+      <Namespace>Tc2_System</Namespace>
+    </LibraryReference>
+    <LibraryReference Include="Tc3_Module,newest,Beckhoff Automation GmbH">
+      <Namespace>Tc3_Module</Namespace>
+    </LibraryReference>
+  </ItemGroup>
+  <ProjectExtensions>
+    <PlcProjectOptions>﻿<XmlArchive><Data><o xml:space="preserve" t="OptionKey">
+      <v n="Name">"&lt;ProjectRoot&gt;"</v>
+      <d n="SubKeys" t="Hashtable" />
+      <d n="Values" t="Hashtable" />
+    </o></Data><TypeList><Type n="Hashtable">System.Collections.Hashtable</Type><Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type><Type n="String">System.String</Type></TypeList></XmlArchive></PlcProjectOptions>
+  </ProjectExtensions>
+</Project>

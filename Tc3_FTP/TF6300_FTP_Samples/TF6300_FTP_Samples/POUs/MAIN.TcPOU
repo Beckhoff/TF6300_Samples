@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="MAIN" Id="{0a1a5817-b9f5-41e5-ac48-866a84c77eb8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	fbSimpleUpload 		: FB_SimpleUpload;
+	fbSimpleDownload 	: FB_SimpleDownload;
+	fbManualOperation 	: FB_ManualOperation;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbManualOperation();
+fbSimpleUpload();
+fbSimpleDownload();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2968" Count="0" />
+      <LineId Id="2966" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

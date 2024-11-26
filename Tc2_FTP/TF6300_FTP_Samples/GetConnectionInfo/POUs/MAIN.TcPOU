@@ -1,0 +1,28 @@
+﻿<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.19">
+  <POU Name="MAIN" Id="{fe447941-7a03-46b3-9a1e-d73620ad599f}">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	FB_FTP_Info1	: FB_FTP_Info;
+	list			: ARRAY [0..5] OF ST_FTP_ConnInfo;
+	startstop		: BOOL;
+	busy			: BOOL;
+	err				: BOOL;
+	errid			: UDINT;
+	entries			: UDINT;	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FB_FTP_Info1(
+	sNetID:= ,
+	pList:= ADR(list),
+	cbList:= SIZEOF(list),
+	bExecute:= startstop,
+	tTimeout:= T#15s,
+	bBusy=> busy,
+	bError=> err,
+	nErrID=> errid,
+	nEntries=> entries);]]></ST>
+    </Implementation>
+    <ObjectProperties />
+  </POU>
+</TcPlcObject>

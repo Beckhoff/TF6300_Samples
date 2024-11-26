@@ -1,0 +1,100 @@
+﻿<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.19">
+  <POU Name="MAIN" Id="{e321da4a-e99f-4ca5-9ab9-62e34de91f00}">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	RisingEdge			: R_TRIG;
+	startstop			: BOOL;
+	state				: BYTE;
+	FB_FTP_Open1		: FB_FTP_Open;
+	FB_FTP_FileExist1	: FB_FTP_FileExist;
+	FB_FTP_FileRemove1	: FB_FTP_FileRemove;
+	FB_FTP_Close1		: FB_FTP_Close;
+	busy				: BOOL;
+	err					: BOOL;
+	errid				: UDINT;
+	handle				: T_HFTP;
+	exist				: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK:=startstop);
+IF RisingEdge.Q THEN
+	state := 1;
+END_IF
+
+CASE state OF
+	0:
+		;
+	1:
+		FB_FTP_Open1(
+			sNetID:= ,
+			sHost:= '172.16.9.223',
+			nPort:= DEFAULT_FTP_PORT,
+			sUsername:= 'TestUser',
+			sPassword:= 'TestPwd123',
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy=> busy,
+			bError=> err,
+			nErrID=> errid,
+			hFTP=> handle);
+
+		IF NOT busy AND NOT err THEN
+			state := 2;
+			FB_FTP_Open1(bExecute:=FALSE);
+		END_IF
+
+	2:
+		FB_FTP_FileExist1(
+			sNetID:= ,
+			hFTP:= handle,
+			sFile:= '\TestFolder\File1.txt',
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy=> busy,
+			bError=> err,
+			nErrID=> errid,
+			bExist=> exist);
+
+		IF NOT busy AND NOT err THEN
+			IF exist THEN
+				state := 3;
+			ELSE
+				state := 4;
+			END_IF
+			FB_FTP_FileExist1(bExecute:= FALSE);
+		END_IF
+	3:
+		FB_FTP_FileRemove1(
+			sNetID:= ,
+			hFTP:= handle,
+			sFile:= '\TestFolder\File1.txt',
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy=> busy,
+			bError=> err,
+			nErrID=> errid);
+
+		IF NOT busy AND NOT err THEN
+			state := 4;
+			FB_FTP_FileRemove1(bExecute:=FALSE);
+		END_IF
+	4:
+		FB_FTP_Close1(
+			sNetID:= ,
+			hFTP:= handle,
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy=> busy,
+			bError=> err,
+			nErrID=> errid);
+
+		IF NOT busy AND NOT err THEN
+			state := 0;
+			FB_FTP_Close1(bExecute:=FALSE);
+		END_IF
+END_CASE]]></ST>
+    </Implementation>
+    <ObjectProperties />
+  </POU>
+</TcPlcObject>

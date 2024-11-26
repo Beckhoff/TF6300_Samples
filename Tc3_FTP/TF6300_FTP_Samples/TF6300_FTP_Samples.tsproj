@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.11" TcVersionFixed="true">
+	<Project ProjectGUID="{DD82A560-86F7-4040-9A1A-52117BEA7379}" Target64Bit="true" ShowHideConfigurations="#x3c7">
+		<System>
+			<Licenses>
+				<Target>
+					<ManualSelect>{3E823FFB-0BB3-43BA-9023-5952947C15A8}</ManualSelect>
+				</Target>
+			</Licenses>
+			<Tasks>
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project GUID="{2516659F-C8FD-4429-9B33-B14E77B45D67}" Name="TF6300_FTP_Samples" PrjFilePath="TF6300_FTP_Samples\TF6300_FTP_Samples.plcproj" TmcFilePath="TF6300_FTP_Samples\TF6300_FTP_Samples.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{91A3118F-82FF-6DD1-1DB1-B6669D7DE7D6}" TmcPath="TF6300_FTP_Samples\TF6300_FTP_Samples.tmc">
+					<Name>Tc3_FTP_Sample Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>20</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="20" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+	</Project>
+</TcSmProject>

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <DUT Name="E_DoTask" Id="{14570472-da22-40a4-ae38-187d8b7a6806}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_DoTask :
+(
+	NONE := 0,
+
+	CONN_Connect,
+	CONN_Disconnect,
+	CONN_AddProfile,
+	
+	EXPLORER_DirExists,
+	EXPLORER_DirCreate,
+	EXPLORER_DirRemove,
+	EXPLORER_DirRename,
+	EXPLORER_DirMove,
+	
+	EXPLORER_FileExists,
+	EXPLORER_FileRemove,
+	EXPLORER_FileRename,
+	EXPLORER_FileMove,
+	
+	TRANSFER_GetState,
+	TRANSFER_GetStateVerbose,
+	TRANSFER_Upload,
+	TRANSFER_Download,
+	TRANSFER_Abort,
+	TRANSFER_GetActive,
+	TRANSFER_GetActiveVerbose
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

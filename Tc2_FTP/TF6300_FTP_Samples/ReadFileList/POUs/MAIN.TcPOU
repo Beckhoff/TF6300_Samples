@@ -1,0 +1,87 @@
+﻿<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.19">
+  <POU Name="MAIN" Id="{73f8ec34-5de2-41ca-a8f1-aaefaec32521}">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	RisingEdge 		: R_TRIG;
+	startstop 		: BOOL;
+	state			: BYTE;
+	FB_FTP_Open1 	: FB_FTP_Open;
+	FB_FTP_FileList1: FB_FTP_FileList;
+	FB_FTP_Close1 	: FB_FTP_Close;
+	busy 			: BOOL;
+	err 			: BOOL;
+	errid 			: UDINT;
+	handle 			: T_HFTP;
+	FileList		: ARRAY [0..MAX_FILELIST_ITEMS] OF STRING;
+	Items			: UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RisingEdge(CLK:= startstop);
+IF RisingEdge.Q THEN
+	state := 1;
+END_IF
+
+CASE state OF
+	0:
+		;
+
+	1:
+		FB_FTP_Open1(
+			sNetID:= ,
+			sHost:= '172.16.9.223',
+			nPort:= 21,
+			sUsername:= 'TestUser',
+			sPassword:= 'TestPwd123',
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy=> busy,
+			bError=> err,
+			nErrId=> errid,
+			hFTP=> handle);
+
+		IF NOT busy AND NOT err THEN
+			FB_FTP_Open1(bExecute:= FALSE);
+			state := 2;
+		END_IF
+
+	2:
+		FB_FTP_FileList1(
+			sNetID:= ,
+			hFTP:= handle,
+			sMask:= '*.txt',
+			nIndex:= 0,
+			pList:= ADR(FileList),
+			cbList:= SIZEOF(FileList),
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy=> busy,
+			bError=> err,
+			nErrID=> errid,
+			nItems=> Items);
+
+		IF NOT busy AND NOT err THEN
+			FB_FTP_FileList1(bExecute:= FALSE);
+			state := 3;
+		END_IF
+
+	3:
+		FB_FTP_Close1(
+			sNetID:= ,
+			hFTP:= handle,
+			bExecute:= TRUE,
+			tTimeout:= T#15s,
+			bBusy => busy,
+			bError => err,
+			nErrId => errid);
+
+		IF NOT busy AND NOT err THEN
+			FB_FTP_Close1(bExecute:= FALSE);
+			state := 0;
+		END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <ObjectProperties />
+  </POU>
+</TcPlcObject>

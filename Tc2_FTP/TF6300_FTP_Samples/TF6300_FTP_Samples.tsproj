@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4022.22">
+	<Project SccProjectName="SAK" SccAuxPath="SAK" SccLocalPath="SAK" SccProvider="SAK" ProjectGUID="{2472F13E-BE66-48AA-ACE5-F9B8B1E743DC}" Target64Bit="true" ShowHideConfigurations="#x306">
+		<System>
+			<Tasks>
+				<Task Id="2" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project GUID="{28EDD61D-911F-4B86-B46F-95541CBDFCC7}" Name="FileUpload" PrjFilePath="FileUpload\FileUpload.plcproj" TmcFilePath="FileUpload\FileUpload.tmc" ReloadTmc="true" AmsPort="851" TargetArchiveSettings="#x0002" FileArchiveSettings="#x0002" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="FileUpload\FileUpload.tmc">
+					<Name>FileUpload Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+				</Instance>
+			</Project>
+			<Project GUID="{9811360A-6DDA-4FED-9857-7A9E938D3ECB}" Name="FileDownload" PrjFilePath="FileDownload\FileDownload.plcproj" TmcFilePath="FileDownload\FileDownload.tmc" ReloadTmc="true" AmsPort="852" TargetArchiveSettings="#x0002" FileArchiveSettings="#x0002" SymbolicMapping="true">
+				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="FileDownload\FileDownload.tmc">
+					<Name>FileDownload Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+				</Instance>
+			</Project>
+			<Project GUID="{E5117C00-FC11-4202-B3FD-727885661F86}" Name="GetConnectionInfo" PrjFilePath="GetConnectionInfo\GetConnectionInfo.plcproj" TmcFilePath="GetConnectionInfo\GetConnectionInfo.tmc" ReloadTmc="true" AmsPort="853" TargetArchiveSettings="#x0002" FileArchiveSettings="#x0002" SymbolicMapping="true">
+				<Instance Id="#x08502080" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="GetConnectionInfo\GetConnectionInfo.tmc">
+					<Name>GetConnectionInfo Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+				</Instance>
+			</Project>
+			<Project GUID="{8BA0863F-07FC-4671-A770-91F1F6A39F5D}" Name="FileRemove" PrjFilePath="FileRemove\FileRemove.plcproj" TmcFilePath="FileRemove\FileRemove.tmc" ReloadTmc="true" AmsPort="854" TargetArchiveSettings="#x0002" FileArchiveSettings="#x0002" SymbolicMapping="true">
+				<Instance Id="#x085020c0" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="FileRemove\FileRemove.tmc">
+					<Name>FileRemove Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+				</Instance>
+			</Project>
+			<Project GUID="{DE4922DD-4B4F-4DB0-87AA-1BB67725BAB8}" Name="ReadFileList" PrjFilePath="ReadFileList\ReadFileList.plcproj" TmcFilePath="ReadFileList\ReadFileList.tmc" ReloadTmc="true" AmsPort="855" TargetArchiveSettings="#x0002" FileArchiveSettings="#x0002" SymbolicMapping="true">
+				<Instance Id="#x08502100" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="ReadFileList\ReadFileList.tmc">
+					<Name>ReadFileList Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+				</Instance>
+			</Project>
+		</Plc>
+	</Project>
+</TcSmProject>

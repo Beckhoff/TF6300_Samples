@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="FB_SimpleDownload" Id="{f52face0-ef5a-43f2-9fd6-8a3c2aa4d2b2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SimpleDownload
+VAR
+  	bStart 				: BOOL; // Starts the sample
+  	
+  	fbConnection 		: FB_FtpConnection(1) := (sNetID:= '', tTimeout:= T#60S);
+  	fbExplorer 			: FB_FtpExplorer := (sNetID:= '', tTimeout:= T#60S);
+  	fbTransfer 			: FB_FtpTransfer := (sNetID:= '', tTimeout:= T#60S);
+  	
+  	stTransferInfo 		: ST_FtpTransferState;
+  	stNTDataProfile 	: ST_FtpConfigProfile;
+  	
+  	sPathToOriginFile 	: STRING(255) := '\myFileDownload.txt';
+  	sPathToTargetDir 	: STRING(255) := 'C:\temp';
+  	
+  	bDone 				: BOOL;
+  	bError 				: BOOL;
+  	sErrorMSG 			: STRING(255);
+  	nCase 				: INT;
+  	nTransferHandle 	: UDINT;
+  	fbTimer 			: TON := (PT:=T#1S); (* How frequently should the transfer state be checked. Beware of IPC load on very high frequencies. *)
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE nCase OF
+	0: (* Start the sample. *)
+		IF bStart THEN
+			bDone := FALSE;
+    		bStart := FALSE;
+    		nCase := 10;
+		END_IF
+		
+	10: (* Connect to server by specifying the profile. Create a new profile if the connection profile does not exist, yet. *)
+    	IF fbConnection.Connect(
+			sFtpConfigProfileFileName:='QuickStart'
+		) THEN
+			nCase := 15;
+    	END_IF
+		
+	11: (* Connection profile does not exist, yet. Specify connection parameters and store in a new profile. *)
+		stNTDataProfile.stConnection.eAuth := E_FtpConnectionAuth.sftp_user_pwd;
+		stNTDataProfile.stConnection.nPort := 23;
+		stNTDataProfile.stConnection.sHostname := '127.0.0.1';
+		stNTDataProfile.stConnection.sUsername := 'My_SFTP_User';
+		stNTDataProfile.stConnection.sPassword := 'SomeSecurePassword##1';
+		stNTDataProfile.stConnection.sFileName := 'QuickStart';
+		
+		IF fbConnection.AddProfile(
+			stFtpConfigProfile := stNTDataProfile
+		) THEN
+			nCase := 16;
+		END_IF
+
+	15: (* Check connection establishment for any errors. *)
+		IF fbConnection.bError THEN
+			IF fbConnection.ipResultMessage.EqualsToEventClass(Global.TC_EVENT_CLASSES.TcFtpClientEventClass) THEN
+				CASE fbConnection.ipResultMessage.nEventId OF
+					E_FtpClientErrorCode.Code_1101_HostConnectionOpen: (* Already connected to the correct host, continue*)
+						nCase := 20;
+					E_FtpClientErrorCode.Code_1100_AnyConnectionOpen: (* Already connected to another host. Abort.*)
+						nCase := 210;
+					E_FtpClientErrorCode.Code_1102_FileLocationError: (* Profile has not been created yet. *)
+						nCase := 11;
+				ELSE
+					nCase := 210; (* an unexpected FtpClient error has occured *)
+				END_CASE
+			ELSE
+				nCase := 210; (* an unexpected other error (Ads, Router, ...) has occured*) 
+			END_IF
+		ELSE
+			nCase := 20; (* Start file upload. *)
+		END_IF
+
+	16: (* Check profile creation for any errors *)
+		IF fbConnection.bError THEN
+			IF fbConnection.ipResultMessage.EqualsToEventClass(Global.TC_EVENT_CLASSES.TcFtpClientEventClass) THEN
+				CASE fbConnection.ipResultMessage.nEventId OF
+					E_FtpClientErrorCode.Code_1106_ParametersImproper: (* The profile is configured improperly (e.g. HostName empty or Port 0) *)
+						nCase := 210;
+				ELSE
+					nCase := 210; (* an unexpected FtpClient error has occured *)
+				END_CASE
+			ELSE
+				nCase := 210; (* an unexpected other error (Ads, Router, ...) has occured*) 
+			END_IF
+		ELSE
+			(* now that the profile has been created, try connecting again *)
+			nCase := 10;
+		END_IF 
+
+	20: (* Initiate file upload. *)
+		IF fbTransfer.Download(
+			fbFtpConnection 		:= fbConnection, 
+			sServerSourcePath 		:= sPathToOriginFile,	
+			sLocalTargetDirectory  	:= sPathToTargetDir,
+			nTransferHandle 		=> nTransferHandle
+		) THEN
+			nCase := 25;
+		END_IF
+
+	25: (* Check file upload initiation for any errors*)
+		IF fbTransfer.bError THEN
+			IF fbTransfer.ipResultMessage.EqualsToEventClass(Global.TC_EVENT_CLASSES.TcFtpClientEventClass) THEN
+				CASE fbTransfer.ipResultMessage.nEventId OF
+					E_FtpClientErrorCode.Code_1106_ParametersImproper: (* Source or Target could be empty *)
+						nCase := 210;
+					E_FtpClientErrorCode.Code_1110_Busy_TryAgain: (* The connection is busy (ONLY FTP). Try again later. *)
+						nCase := 210;
+				ELSE
+					nCase := 210; (* an unexpected FtpClient error has occured *)
+				END_CASE
+			ELSE
+				nCase := 210; (* an unexpected other error (Ads, Router, ...) has occured*) 
+			END_IF
+		ELSE
+			(* now that the transfer has been initialised, check transfer state *)
+			nCase := 30;
+		END_IF 
+		
+	30: (* File upload has been started, now cyclically check transfer state. *)
+		fbTimer(IN:=TRUE); 
+		IF fbTimer.Q THEN
+			fbTimer(IN:=FALSE);
+			nCase := 40;
+		END_IF
+
+	40: (* Request transfer state *)
+		IF fbTransfer.GetState(
+			fbFtpConnection 		:= fbConnection,
+			nTransferHandle 		:= nTransferHandle,
+			stTransferState			=> stTransferInfo
+		) THEN
+			nCase := 45;
+		END_IF
+		
+	45: (* Check GetState for any errors*)
+		IF fbTransfer.bError THEN
+			IF fbTransfer.ipResultMessage.EqualsToEventClass(Global.TC_EVENT_CLASSES.TcFtpClientEventClass) THEN
+				CASE fbTransfer.ipResultMessage.nEventId OF
+					E_FtpClientErrorCode.Code_1106_ParametersImproper: (* The transfer for the provided handle could not be found *)
+						nCase := 210;
+				ELSE
+					nCase := 210; (* an unexpected FtpClient error has occured *)
+				END_CASE
+			ELSE
+				nCase := 210; (* an unexpected other error (Ads, Router, ...) has occured*) 
+			END_IF
+		ELSE
+			nCase := 50;
+		END_IF
+
+	50: (* Check if file transfer is completed and has not produced any errors *)
+		IF (stTransferInfo.eProblem = E_FtpTransferProblemType.None) AND (stTransferInfo.eStep = E_FtpTransferStep.TransferCompleted) THEN
+			nCase := 60; // file transfer completed with no errors
+		ELSIF stTransferInfo.eProblem <> E_FtpTransferProblemType.None THEN
+			nCase := 210; //file transfer encountered an error
+		ELSE
+			nCase := 30; // not completed yet, check state again
+		END_IF
+		
+	60: (* Disconnect from server. *)
+		IF fbConnection.Disconnect() THEN
+			nCase := 65;
+		END_IF
+		
+	65: (* Check disconnect for any errors *)
+		IF fbConnection.bError THEN
+			nCase := 200; (* continue, but warn user that something happened on disconnect *)
+		ELSE
+			nCase := 70; (* All clear, connection terminated. *)
+		END_IF 
+
+	70: (* File upload completed. *)
+		bDone := TRUE;
+		nCase := 0;
+
+	200: (* File upload completed but unexpected error on disconnect from server. *)
+		bDone := TRUE;
+		bError := TRUE;
+		sErrorMSG := 'Download was completed successfully, but received error on disconnect. Check [fbConnection.ipResultMessage] for details.';
+		nCase := 0;
+
+	210: (* An error has occured. *)
+		bDone := TRUE;
+		bError := TRUE;
+		sErrorMSG := 'Failed to Download. Check [fbConnection.ipResultMessage] and [stTransferInfo.eProblem]';
+		nCase := 0;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_SimpleDownload">
+      <LineId Id="1" Count="2" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="4" Count="125" />
+      <LineId Id="162" Count="1" />
+      <LineId Id="130" Count="17" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="148" Count="4" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="153" Count="4" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="158" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
